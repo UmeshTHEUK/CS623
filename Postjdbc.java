@@ -12,11 +12,12 @@ public class Postjdbc {
         String user = "postgres";
         String pass = "12345";
 
+        // Connecting to db by passing params to the getConnection method of the DriverManager Object
         try (Connection conn = DriverManager.getConnection(url, user, pass)) {
             // Set auto-commit to false to manage transactions manually and adhering to atomicity
             conn.setAutoCommit(false);
 
-            // Set isolation level to SERIALIZABLE to ensure isolation
+            // Set the level to SERIALIZABLE to ensure isolation of the transaction
             conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 
             try (Statement stmt = conn.createStatement()) {
@@ -28,21 +29,21 @@ public class Postjdbc {
                 stmt.executeUpdate("INSERT INTO depot (depid, addr, volume) VALUES ('d100', 'Chicago', 100);");
                 stmt.executeUpdate("INSERT INTO stock (prodid, depid, quantity) VALUES ('p1', 'd100', 100);");
 
-                // Step 3: Change product p1 to pp1 in Product and Stock (cascading update handled by foreign key constraint)
+                // Step 3: Change product p1 to pp1 in Product and Stock
                 stmt.executeUpdate("UPDATE product SET prodid = 'pp1' WHERE prodid = 'p1';");
 
-                // Step 4: Change depot d1 to dd1 in Depot and Stock (cascading update handled by foreign key constraint)
+                // Step 4: Change depot d1 to dd1 in Depot and Stock
                 stmt.executeUpdate("UPDATE depot SET depid = 'dd1' WHERE depid = 'd1';");
 
-                // Step 1: Delete product p1 (now pp1) from Product and Stock (cascading delete handled by foreign key constraint)
+                // Step 1: Delete product p1 (now pp1) from Product and Stock
                 stmt.executeUpdate("DELETE FROM product WHERE prodid = 'pp1';");
 
-                // Step 2: Delete depot d1 (now dd1) from Depot and Stock (cascading delete handled by foreign key constraint)
+                // Step 2: Delete depot d1 (now dd1) from Depot and Stock
                 stmt.executeUpdate("DELETE FROM depot WHERE depid = 'dd1';");
 
                 // Commit the transaction
                 conn.commit();
-                System.out.println("All Transaction committed successfully.");
+                System.out.println("All Transactions were committed successfully.");
             } catch (SQLException e) {
                 // Rollback in case of any errors
                 if (conn != null) {
@@ -56,6 +57,7 @@ public class Postjdbc {
                 e.printStackTrace();
             }
         } catch (SQLException e) {
+        	  System.out.println("An error has occured while connecting to the database.");
             e.printStackTrace();
         }
     }
